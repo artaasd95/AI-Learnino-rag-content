@@ -212,6 +212,10 @@ secrets.json
 # PROJECT SPECIFIC
 # =============================================================================
 
+# Vector database storage
+chroma_db/
+qdrant_storage/
+
 # Upload status files
 upload_status.json
 upload_log.txt

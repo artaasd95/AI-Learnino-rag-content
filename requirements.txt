@@ -1,0 +1,22 @@
+# LangChain Core Packages
+langchain>=0.3.27
+langchain-core>=0.3.79
+langchain-community>=0.3.31
+langchain-text-splitters>=0.3.11
+
+# LangChain Integrations
+langchain-openai>=0.3.7
+langchain-qdrant>=0.1.7
+
+# OpenAI SDK (compatible with OpenRouter API)
+openai>=1.54.0
+
+# Qdrant Vector Database Client
+qdrant-client>=1.16.1
+
+# Web Framework (if using FastAPI)
+fastapi>=0.115.0
+uvicorn>=0.32.0
+
+# Environment Variables
+python-dotenv>=1.0.1
