@@ -1,29 +1,40 @@
 from langchain_core.retrievers import BaseRetriever
 from langchain_core.documents import Document
+from langchain_core.callbacks import CallbackManagerForRetrieverRun
 from langchain_openai import OpenAIEmbeddings
 from langchain_qdrant import QdrantVectorStore
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from qdrant_client import QdrantClient
 from dotenv import load_dotenv
+from pydantic import Field
 import os
-from typing import List
+from typing import List, Optional, Any
 import glob
 
 # Load environment variables from .env file
 load_dotenv()
 
 class ShakespeareRetriever(BaseRetriever):
+    embeddings: Optional[OpenAIEmbeddings] = Field(default=None, description="OpenAI embeddings for vectorization")
+    qdrant_url: str = Field(default="http://localhost:6333", description="Qdrant server URL")
+    collection_name: str = Field(default="shakespeare_collection", description="Qdrant collection name")
+    vectorstore: Optional[QdrantVectorStore] = Field(default=None, description="Qdrant vector store for document retrieval")
     def __init__(self):
-        super().__init__()
-        self.vectorstore = None
         # Initialize OpenRouter embeddings (compatible with OpenAI API)
-        self.embeddings = OpenAIEmbeddings(
+        embeddings = OpenAIEmbeddings(
             model=os.getenv("EMBEDDING_MODEL", "openai/text-embedding-3-small"),
             openai_api_key=os.getenv("OPENROUTER_API_KEY"),
             openai_api_base="https://openrouter.ai/api/v1"
         )
-        self.qdrant_url = os.getenv("QDRANT_URL", "http://localhost:6333")
-        self.collection_name = os.getenv("QDRANT_COLLECTION_NAME", "shakespeare_collection")
+        qdrant_url = os.getenv("QDRANT_URL", "http://localhost:6333")
+        collection_name = os.getenv("QDRANT_COLLECTION_NAME", "shakespeare_collection")
+
+        super().__init__(
+            embeddings=embeddings,
+            qdrant_url=qdrant_url,
+            collection_name=collection_name
+        )
+
         self._initialize_vectorstore()
     
     def _initialize_vectorstore(self):
@@ -90,11 +101,32 @@ class ShakespeareRetriever(BaseRetriever):
                 collection_name=self.collection_name
             )
     
-    def get_relevant_documents(self, query: str) -> List[Document]:
+    def _get_relevant_documents(
+        self,
+        query: str,
+        *,
+        run_manager: Optional[CallbackManagerForRetrieverRun] = None,
+        **kwargs: Any
+    ) -> List[Document]:
+        print(f"🔍 Searching for: '{query}'")
         if not self.vectorstore:
+            print("❌ Vectorstore not initialized")
             return []
-        
-        return self.vectorstore.similarity_search(query, k=5)
-    
-    async def aget_relevant_documents(self, query: str) -> List[Document]:
-        return self.get_relevant_documents(query)
+
+        try:
+            print("📡 Calling similarity_search...")
+            results = self.vectorstore.similarity_search(query, k=5)
+            print(f"✅ Found {len(results)} documents")
+            return results
+        except Exception as e:
+            print(f"❌ Error in similarity search: {str(e)}")
+            return []
+
+    async def _aget_relevant_documents(
+        self,
+        query: str,
+        *,
+        run_manager: Optional[CallbackManagerForRetrieverRun] = None,
+        **kwargs: Any
+    ) -> List[Document]:
+        return self._get_relevant_documents(query, run_manager=run_manager, **kwargs)
