@@ -1,8 +1,8 @@
-from langchain_core.retrievers import BaseRetriever
 from langchain_core.runnables import Runnable
+from src.retrieval.shakespeare_retriever import ShakespeareRetriever
 
 class ConversationService:
-    def __init__(self, chain: Runnable, retriever: BaseRetriever):
+    def __init__(self, chain: Runnable, retriever: ShakespeareRetriever):
         self.chain = chain
         self.retriever = retriever
     

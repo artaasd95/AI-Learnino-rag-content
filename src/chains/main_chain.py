@@ -25,7 +25,9 @@ Answer:""")
         model=os.getenv("MODEL_NAME", "deepseek/deepseek-chat"),
         openai_api_key=os.getenv("OPENROUTER_API_KEY"),
         openai_api_base="https://openrouter.ai/api/v1",
-        temperature=0.3
+        temperature=0.3,
+        request_timeout=30,  # 30 second timeout
+        max_retries=2
     )
 
     # Define output parser
