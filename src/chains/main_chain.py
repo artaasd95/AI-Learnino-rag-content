@@ -18,6 +18,10 @@ Question: {question}
 
 Answer based on the Shakespeare context provided. If the context doesn't contain relevant information, say so but still try to provide a helpful response based on your knowledge of Shakespeare.
 
+if the context is found in the data, after explanation write the main context that is found in the data.
+                                              
+                                                                                            
+
 Answer:""")
 
     # Initialize the model with OpenRouter's base URL using init_chat_model
