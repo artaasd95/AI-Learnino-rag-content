@@ -3,11 +3,19 @@ from src.retrieval.shakespeare_retriever import ShakespeareRetriever
 from src.chains.main_chain import create_shakespeare_chain
 from dotenv import load_dotenv
 import os
+import logging
 
 # Load environment variables
 load_dotenv()
 
 def main():
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+
     print("=" * 60)
     print("Shakespeare RAG System - Qdrant + OpenRouter")
     print("=" * 60)

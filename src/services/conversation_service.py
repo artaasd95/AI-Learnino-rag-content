@@ -1,5 +1,9 @@
 from langchain_core.runnables import Runnable
 from src.retrieval.shakespeare_retriever import ShakespeareRetriever
+import logging
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 class ConversationService:
     def __init__(self, chain: Runnable, retriever: ShakespeareRetriever):
@@ -17,21 +21,31 @@ class ConversationService:
             Response based on retrieved context from Shakespeare's works
         """
         try:
-            print("📚 Retrieving context...")
+            logger.info("📚 Retrieving context...")
             retrieved_context = self._retrieve_relevant_context(query)
-            print(f"📄 Context retrieved ({len(retrieved_context)} chars)")
+            logger.info(f"📄 Context retrieved ({len(retrieved_context)} chars)")
 
-            print("🤖 Calling language model...")
-            response = self.chain.invoke({
+            logger.info("🤖 Calling language model...")
+
+            # Prepare the prompt input
+            prompt_input = {
                 'question': query,
                 'context': retrieved_context
-            })
-            print("✅ Response generated")
+            }
+
+            # Log the prompt being sent to LLM
+            logger.info("📝 Prompt being sent to LLM:")
+            logger.info(f"   Question: {prompt_input['question']}")
+            logger.info(f"   Context Length: {len(prompt_input['context'])} characters")
+            logger.info(f"   Context Preview: {prompt_input['context'][:300]}...")
+
+            response = self.chain.invoke(prompt_input)
+            logger.info("✅ Response generated")
 
             return response
 
         except Exception as e:
-            print(f"❌ Error: {str(e)}")
+            logger.error(f"❌ Error: {str(e)}")
             return f"Error processing query: {str(e)}"
     
     def _retrieve_relevant_context(self, query: str) -> str:
@@ -45,9 +59,9 @@ class ConversationService:
             Formatted context string with relevant passages
         """
         try:
-            print("🔍 Calling retriever.get_relevant_documents...")
+            logger.info("🔍 Calling retriever.get_relevant_documents...")
             documents = self.retriever._get_relevant_documents(query)
-            print(f"📑 Retrieved {len(documents)} documents")
+            logger.info(f"📑 Retrieved {len(documents)} documents")
 
             if not documents:
                 return "No relevant Shakespeare text found."
@@ -61,5 +75,5 @@ class ConversationService:
             return "\n".join(context_parts)
 
         except Exception as e:
-            print(f"❌ Error in _retrieve_relevant_context: {str(e)}")
+            logger.error(f"❌ Error in _retrieve_relevant_context: {str(e)}")
             return f"Error retrieving context: {str(e)}"

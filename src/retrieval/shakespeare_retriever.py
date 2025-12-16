@@ -10,9 +10,13 @@ from pydantic import Field
 import os
 from typing import List, Optional, Any
 import glob
+import logging
 
 # Load environment variables from .env file
 load_dotenv()
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 class ShakespeareRetriever(BaseRetriever):
     embeddings: Optional[OpenAIEmbeddings] = Field(default=None, description="OpenAI embeddings for vectorization")
@@ -108,18 +112,27 @@ class ShakespeareRetriever(BaseRetriever):
         run_manager: Optional[CallbackManagerForRetrieverRun] = None,
         **kwargs: Any
     ) -> List[Document]:
-        print(f"🔍 Searching for: '{query}'")
+        logger.info(f"🔍 Retriever searching for query: '{query}'")
         if not self.vectorstore:
-            print("❌ Vectorstore not initialized")
+            logger.error("❌ Vectorstore not initialized")
             return []
 
         try:
-            print("📡 Calling similarity_search...")
+            logger.info("📡 Calling similarity_search...")
             results = self.vectorstore.similarity_search(query, k=5)
-            print(f"✅ Found {len(results)} documents")
+            logger.info(f"✅ Found {len(results)} documents")
+
+            # Log details of retrieved documents
+            for i, doc in enumerate(results):
+                logger.info(f"📄 Document {i+1}:")
+                logger.info(f"   Source: {doc.metadata.get('source', 'Unknown')}")
+                logger.info(f"   Chunk Index: {doc.metadata.get('chunk_index', 'Unknown')}")
+                logger.info(f"   Content Preview: {doc.page_content[:200]}...")
+                logger.info(f"   Full Content Length: {len(doc.page_content)} characters")
+
             return results
         except Exception as e:
-            print(f"❌ Error in similarity search: {str(e)}")
+            logger.error(f"❌ Error in similarity search: {str(e)}")
             return []
 
     async def _aget_relevant_documents(

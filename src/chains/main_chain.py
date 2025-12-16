@@ -1,4 +1,4 @@
-from langchain_openai import ChatOpenAI
+from langchain.chat_models import init_chat_model
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from dotenv import load_dotenv
@@ -20,14 +20,16 @@ Answer based on the Shakespeare context provided. If the context doesn't contain
 
 Answer:""")
 
-    # Use OpenRouter with deepseek v3.2 model
-    model = ChatOpenAI(
+    # Initialize the model with OpenRouter's base URL using init_chat_model
+    model = init_chat_model(
         model=os.getenv("MODEL_NAME", "deepseek/deepseek-chat"),
-        openai_api_key=os.getenv("OPENROUTER_API_KEY"),
-        openai_api_base="https://openrouter.ai/api/v1",
+        model_provider="openai",
+        base_url="https://openrouter.ai/api/v1",
+        api_key=os.getenv("OPENROUTER_API_KEY"),
         temperature=0.3,
-        request_timeout=30,  # 30 second timeout
-        max_retries=2
+        timeout=30,  # 30 second timeout
+        max_retries=2,
+        
     )
 
     # Define output parser
