@@ -4,6 +4,8 @@
 
 This repository contains educational materials and code implementations for Retrieval-Augmented Generation (RAG) systems, part of the AI Learnino community lectures. The project demonstrates practical RAG implementation using Shakespeare's works as the knowledge base.
 
+This repository contains the materials belonging to a lecture in a webinar in AI-Learnino Community
+
 ## 📚 Overview
 
 This project showcases two approaches to building a RAG system:
